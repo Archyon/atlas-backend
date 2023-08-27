@@ -1,16 +1,16 @@
 import {CustomRequest, Routing} from "./routing";
-import e from "express";
+import express from "express";
 
 export class Example extends Routing {
-    getOne(req: CustomRequest, res: e.Response) {
+    getOne(req: CustomRequest, res: express.Response) {
         super.getOne(req, res);
     }
 
-    getAll(req: CustomRequest, res: e.Response) {
+    getAll(req: CustomRequest, res: express.Response) {
         super.getAll(req, res);
     }
 
-    redirect(req: CustomRequest, res: e.Response) {
+    redirect(req: CustomRequest, res: express.Response) {
         super.redirect(req, res);
     }
 }
