@@ -1,8 +1,8 @@
 import express from "express";
-// import morgan from "morgan";
+import morgan from "morgan";
 import helmet from "helmet";
 // import compression from "compression";
-import "express-async-errors";
+// import "express-async-errors";
 // import session from "express-session";
 // import cors from "cors";
 import * as Sentry from "@sentry/node";
@@ -68,7 +68,15 @@ app.use(
 );*/
 
 // Morgan logs and prints all incoming requests
-// app.use(morgan("dev"));
+app.use(morgan("dev"));
 
 // Assign the appropriate routers
-app.use("/start", new Example().toRouter);
+app.use("/start", new Example().toRouter());
+
+// Actually start the server, we're done!
+const server = app.listen(PORT_NUMBER, () => {
+    console.log(`API AVAILABLE AT: https://localhost:${PORT_NUMBER}`);
+});
+
+// export the server for testing
+export default server;

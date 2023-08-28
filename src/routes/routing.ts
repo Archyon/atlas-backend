@@ -1,13 +1,13 @@
 import express from "express";
 
-export type CustomRequest = express.Request<any, any, any>;
+export type CustomRequest = express.Request<any, any, any, any, any>;
 
 /**
  * The Routing class provides some skeleton code for a basic endpoint.
  *
  * HTTP GET    "/"    => getAll
  * HTTP GET    "/:id" => getOne
- * HTTP POST   "/"    => createOne
+ * HTTP NOTIFY "/"    => redirect
  *
  * All functions take in an express.Request object and can manipulate an
  * express.Response object. The functions can be asynchronous.
