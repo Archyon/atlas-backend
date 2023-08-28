@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Market {
+  id    Int   @unique
+
+  datarows  DataRow[]
+}
+
+model DataRow {
+  id      Int       @unique
+
+  // variabeles
+  var1    String
+  var2    String
+  var3    String
+
+  // corresponding market
+  market_id   Int
+  market      Market @relation(fields: [market_id], references: [id])
+}
