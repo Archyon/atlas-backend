@@ -7,8 +7,8 @@ import helmet from "helmet";
 // import cors from "cors";
 import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
-
-import {Example} from "./routes/example";
+import { MarketRouting } from "./routes/market";
+import { DataRowRouting } from "./routes/datarow";
 
 // Parse environment file.
 // dotenv.config();
@@ -71,7 +71,8 @@ app.use(
 app.use(morgan("dev"));
 
 // Assign the appropriate routers
-app.use("/start", new Example().toRouter());
+app.use("/market", new MarketRouting().toRouter());
+app.use("/datarow", new DataRowRouting().toRouter());
 
 // Actually start the server, we're done!
 const server = app.listen(PORT_NUMBER, () => {
