@@ -11,8 +11,6 @@ export type CustomRequest = express.Request<any, any, any>;
  *
  * All functions take in an express.Request object and can manipulate an
  * express.Response object. The functions can be asynchronous.
- *
- * You are free to add any other function and overwrite Routing::toRouter.
  */
 export abstract class Routing {
     getAll(req: CustomRequest, res: express.Response) {
