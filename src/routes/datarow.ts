@@ -30,14 +30,14 @@ export class DataRowRouting extends Routing {
             high: Number(req.body["high"]),
             low: Number(req.body["low"]),
             close: Number(req.body["close"]),
-            market_name: req.body["market"]
+            market_name: req.body["market"],
         };
 
-        await prisma.dataRow.create({
+        const result = await prisma.dataRow.create({
             data: datarow,
         });
 
-        return res.status(201);
+        return res.status(201).json(result);
     }
 
     async redirect(req: CustomRequest, res: express.Response) {

@@ -28,13 +28,13 @@ export class MarketRouting extends Routing {
         const name = req.body["name"];
         console.log("name: " + name);
 
-        await prisma.market.create({
+        const result = await prisma.market.create({
             data: {
                 name: name,
             },
         });
 
-        return res.status(201);
+        return res.status(201).json(result);
     }
 
     async redirect(req: CustomRequest, res: express.Response) {
