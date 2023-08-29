@@ -12,20 +12,21 @@ datasource db {
 }
 
 model Market {
-  id    Int   @unique
+  name    String   @unique
 
-  datarows  DataRow[]
+  // datarows  DataRow[]
 }
 
 model DataRow {
-  id      Int       @unique
+  time      Int       @unique
 
   // variabeles
-  var1    String
-  var2    String
-  var3    String
+  open    Float
+  high    Float
+  low     Float
+  close   Float
 
   // corresponding market
-  market_id   Int
-  market      Market @relation(fields: [market_id], references: [id])
+  market_name   String
+  // market        Market @relation(fields: [market_id], references: [name])
 }

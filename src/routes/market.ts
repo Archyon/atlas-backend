@@ -5,12 +5,18 @@ import { CustomRequest, Routing } from "./routing";
 const prisma = new PrismaClient();
 
 export class MarketRouting extends Routing {
+    async getAll(req: CustomRequest, res: express.Response) {
+        const result = await prisma.market.findMany();
+
+        return res.status(200).json(result);
+    }
+
     async getOne(req: CustomRequest, res: express.Response) {
-        const id = req.params["id"];
+        const name = req.params["id"];
 
         const result = await prisma.market.findUniqueOrThrow({
             where: {
-                id: id,
+                name: name,
             },
         });
         console.log(result);
@@ -18,10 +24,17 @@ export class MarketRouting extends Routing {
         return res.status(200).json(result);
     }
 
-    async getAll(req: CustomRequest, res: express.Response) {
-        const result = await prisma.market.findMany();
+    async createOne(req: CustomRequest, res: express.Response) {
+        const name = req.body["name"];
+        console.log("name: " + name);
 
-        return res.status(200).json(result);
+        await prisma.market.create({
+            data: {
+                name: name,
+            },
+        });
+
+        return res.status(201);
     }
 
     async redirect(req: CustomRequest, res: express.Response) {
