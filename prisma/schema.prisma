@@ -18,7 +18,7 @@ model Market {
 }
 
 model DataRow {
-  time      Int       @unique
+  time      Int
 
   // variabeles
   open    Float
@@ -29,4 +29,6 @@ model DataRow {
   // corresponding market
   market_name   String
   // market        Market @relation(fields: [market_id], references: [name])
+
+  @@id([time, market_name])
 }
