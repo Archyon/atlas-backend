@@ -7,8 +7,12 @@ import helmet from "helmet";
 // import cors from "cors";
 import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
+
+// Import all routes and websockets
 import { MarketRouting } from "./routes/market";
 import { DataRowRouting } from "./routes/datarow";
+import {MarketWs} from "./routes/websockets/marketWs";
+import {DatarowWs} from "./routes/websockets/datarowWs";
 
 // Parse environment file.
 // dotenv.config();
@@ -16,6 +20,7 @@ import { DataRowRouting } from "./routes/datarow";
 const PORT_NUMBER = 8080;
 
 const app = express();
+const server = require("http").createServer(app);
 
 // Sentry
 if (process.env.SENTRY_DSN) {
@@ -74,8 +79,33 @@ app.use(morgan("dev"));
 app.use("/market", new MarketRouting().toRouter());
 app.use("/datarow", new DataRowRouting().toRouter());
 
+// Use websockets
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ noServer: true });
+const channelHandlers = new Map();      // map for the channel-specific handlers
+
+channelHandlers.set("/market", (ws: any) => {
+    new MarketWs().connect(ws);
+})
+
+channelHandlers.set("/datarow", (ws: any) => {
+    new DatarowWs().connect(ws);
+})
+
+server.on("upgrade", (req: express.Request, socket: any, head: any) => {
+    const channelHandler = channelHandlers.get(req.url);
+    if (channelHandler) {
+        wss.handleUpgrade(req, socket, head, (ws: any) => {
+            channelHandler(ws);
+        });
+    } else {
+        socket.destroy();
+    }
+})
+
+
 // Actually start the server, we're done!
-const server = app.listen(PORT_NUMBER, () => {
+server.listen(PORT_NUMBER, () => {
     console.log(`API AVAILABLE AT: https://localhost:${PORT_NUMBER}`);
 });
 
