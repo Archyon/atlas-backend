@@ -1,6 +1,6 @@
 import express from "express";
-import { MarketWs } from "./websockets/marketWs";
-import { DatarowWs } from "./websockets/datarowWs";
+import { MarketWs } from "../websockets/marketWs";
+import { DatarowWs } from "../websockets/datarowWs";
 
 export type CustomRequest = express.Request<any, any, any, any, any>;
 

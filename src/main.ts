@@ -12,8 +12,8 @@ import { ProfilingIntegration } from "@sentry/profiling-node";
 // Import all routes and websockets
 import { MarketRouting } from "./routes/market";
 import { DataRowRouting } from "./routes/datarow";
-import { MarketWs } from "./routes/websockets/marketWs";
-import { DatarowWs } from "./routes/websockets/datarowWs";
+import { MarketWs } from "./websockets/marketWs";
+import { DatarowWs } from "./websockets/datarowWs";
 
 // Parse environment file.
 // dotenv.config();

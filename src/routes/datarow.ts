@@ -8,10 +8,10 @@ export class DataRowRouting extends Routing {
     async getAll(req: CustomRequest, res: express.Response) {
         const result = await prisma.dataRow.findMany({
             where: {
-                // time: {
-                //     lte: req.query["before"],
-                //     gte: req.query["after"],
-                // },
+                time: {
+                    lte: req.query["before"],
+                    gte: req.query["after"],
+                },
                 market_name: req.query["market"],
             },
         });
@@ -26,7 +26,7 @@ export class DataRowRouting extends Routing {
             where: {
                 // @ts-ignore
                 time_market_name: {
-                    time: time,
+                    time: new Date(time),
                     market_name: req.body["market"],
                 },
             },
@@ -40,8 +40,14 @@ export class DataRowRouting extends Routing {
         this.datarowWs?.sendData(req.body);
 
         for (let datarow of req.body) {
+            // convert UNIX timestamp to Date
+            let time = new Date();
+            const unixtime = time.valueOf();
+            time = new Date(unixtime);
+
             const data = {
-                time: datarow.time.toString(),
+                // time: datarow.time.toString(),
+                time: time,
                 open: datarow.open,
                 high: datarow.high,
                 low: datarow.low,
@@ -51,7 +57,6 @@ export class DataRowRouting extends Routing {
             const result = await prisma.dataRow.create({
                 data: data,
             });
-            // this.datarowWs?.sendData(result);
         }
 
         return res.status(201).json({});

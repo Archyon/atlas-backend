@@ -26,6 +26,7 @@ export class MarketRouting extends Routing {
 
     createOne = async (req: CustomRequest, res: express.Response) => {
         const name = req.body["name"];
+        console.log("name: " + name);
 
         // send the new added data to the websocket listeners
         this.marketWs?.sendData(name);
