@@ -1,4 +1,6 @@
 import express from "express";
+import { MarketWs } from "./websockets/marketWs";
+import { DatarowWs } from "./websockets/datarowWs";
 
 export type CustomRequest = express.Request<any, any, any, any, any>;
 
@@ -14,6 +16,17 @@ export type CustomRequest = express.Request<any, any, any, any, any>;
  * express.Response object. The functions can be asynchronous.
  */
 export abstract class Routing {
+    protected marketWs: MarketWs | undefined;
+    protected datarowWs: DatarowWs | undefined;
+
+    setMarketWs(marketWs: MarketWs) {
+        this.marketWs = marketWs;
+    }
+
+    setDatarowWs(datarowWs: DatarowWs) {
+        this.datarowWs = datarowWs;
+    }
+
     getAll(req: CustomRequest, res: express.Response) {
         throw new Error("Not implemented");
     }

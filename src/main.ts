@@ -11,8 +11,8 @@ import { ProfilingIntegration } from "@sentry/profiling-node";
 // Import all routes and websockets
 import { MarketRouting } from "./routes/market";
 import { DataRowRouting } from "./routes/datarow";
-import {MarketWs} from "./routes/websockets/marketWs";
-import {DatarowWs} from "./routes/websockets/datarowWs";
+import { MarketWs } from "./routes/websockets/marketWs";
+import { DatarowWs } from "./routes/websockets/datarowWs";
 
 // Parse environment file.
 // dotenv.config();
@@ -76,21 +76,30 @@ app.use(
 app.use(morgan("dev"));
 
 // Assign the appropriate routers
-app.use("/market", new MarketRouting().toRouter());
-app.use("/datarow", new DataRowRouting().toRouter());
+const marketRouting = new MarketRouting();
+const datarowRouting = new DataRowRouting();
+app.use("/market", marketRouting.toRouter());
+app.use("/datarow", datarowRouting.toRouter());
 
 // Use websockets
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ noServer: true });
-const channelHandlers = new Map();      // map for the channel-specific handlers
+const marketWs = new MarketWs();
+const datarowWs = new DatarowWs();
+
+const channelHandlers = new Map(); // map for the channel-specific handlers
 
 channelHandlers.set("/market", (ws: any) => {
-    new MarketWs().connect(ws);
-})
+    marketWs.connect(ws);
+    marketRouting.setMarketWs(marketWs);
+    datarowRouting.setMarketWs(marketWs);
+});
 
 channelHandlers.set("/datarow", (ws: any) => {
-    new DatarowWs().connect(ws);
-})
+    datarowWs.connect(ws);
+    marketRouting.setDatarowWs(datarowWs);
+    datarowRouting.setDatarowWs(datarowWs);
+});
 
 server.on("upgrade", (req: express.Request, socket: any, head: any) => {
     const channelHandler = channelHandlers.get(req.url);
@@ -101,8 +110,7 @@ server.on("upgrade", (req: express.Request, socket: any, head: any) => {
     } else {
         socket.destroy();
     }
-})
-
+});
 
 // Actually start the server, we're done!
 server.listen(PORT_NUMBER, () => {

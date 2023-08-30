@@ -5,10 +5,13 @@ export class MarketWs {
 
     connect(ws: any) {
         this.ws = ws;
-        console.log("websocket connected to channel market")
+        console.log("websocket connected to channel market");
         this.ws.on("message", (message: any) => {
-            console.log("message: " + message)
             this.ws.send("message received: " + message);
-        })
+        });
+    }
+
+    sendData(name: String) {
+        this.ws.send("New market added: " + name);
     }
 }

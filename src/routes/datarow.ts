@@ -12,8 +12,8 @@ export class DataRowRouting extends Routing {
                 //     lte: req.query["before"],
                 //     gte: req.query["after"],
                 // },
-                market_name: req.query["market"]
-            }
+                market_name: req.query["market"],
+            },
         });
 
         return res.status(200).json(result);
@@ -35,7 +35,10 @@ export class DataRowRouting extends Routing {
         return res.status(200).json(result);
     }
 
-    async createOne(req: CustomRequest, res: express.Response) {
+    createOne = async (req: CustomRequest, res: express.Response) => {
+        // send the new added data to the websocket listeners
+        this.datarowWs?.sendData(req.body);
+
         for (let datarow of req.body) {
             const data = {
                 time: datarow.time.toString(),
@@ -48,10 +51,11 @@ export class DataRowRouting extends Routing {
             const result = await prisma.dataRow.create({
                 data: data,
             });
+            // this.datarowWs?.sendData(result);
         }
 
         return res.status(201).json({});
-    }
+    };
 
     async redirect(req: CustomRequest, res: express.Response) {
         const result = {
