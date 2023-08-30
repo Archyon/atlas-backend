@@ -1,8 +1,9 @@
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import { ErrorHandler } from "./errors/error_handler";
+import "express-async-errors";
 // import compression from "compression";
-// import "express-async-errors";
 // import session from "express-session";
 // import cors from "cors";
 import * as Sentry from "@sentry/node";
@@ -111,6 +112,10 @@ server.on("upgrade", (req: express.Request, socket: any, head: any) => {
         socket.destroy();
     }
 });
+
+// Use a custom made error handler
+app.use(Sentry.Handlers.errorHandler());
+app.use(ErrorHandler.handle);
 
 // Actually start the server, we're done!
 server.listen(PORT_NUMBER, () => {
