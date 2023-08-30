@@ -14,11 +14,11 @@ datasource db {
 model Market {
   name    String   @unique
 
-  // datarows  DataRow[]
+  datarows  DataRow[]
 }
 
 model DataRow {
-  time      Int
+  time    String
 
   // variabeles
   open    Float
@@ -28,7 +28,7 @@ model DataRow {
 
   // corresponding market
   market_name   String
-  // market        Market @relation(fields: [market_id], references: [name])
+  market        Market @relation(fields: [market_name], references: [name])
 
   @@id([time, market_name])
 }

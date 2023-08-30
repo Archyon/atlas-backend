@@ -6,7 +6,15 @@ const prisma = new PrismaClient();
 
 export class DataRowRouting extends Routing {
     async getAll(req: CustomRequest, res: express.Response) {
-        const result = await prisma.dataRow.findMany();
+        const result = await prisma.dataRow.findMany({
+            where: {
+                // time: {
+                //     lte: req.query["before"],
+                //     gte: req.query["after"],
+                // },
+                market_name: req.query["market"]
+            }
+        });
 
         return res.status(200).json(result);
     }
@@ -18,7 +26,7 @@ export class DataRowRouting extends Routing {
             where: {
                 // @ts-ignore
                 time_market_name: {
-                    time: Number(time),
+                    time: time,
                     market_name: req.body["market"],
                 },
             },
@@ -28,20 +36,21 @@ export class DataRowRouting extends Routing {
     }
 
     async createOne(req: CustomRequest, res: express.Response) {
-        const datarow = {
-            time: Number(req.body["time"]),
-            open: Number(req.body["open"]),
-            high: Number(req.body["high"]),
-            low: Number(req.body["low"]),
-            close: Number(req.body["close"]),
-            market_name: req.body["market"],
-        };
+        for (let datarow of req.body) {
+            const data = {
+                time: datarow.time.toString(),
+                open: datarow.open,
+                high: datarow.high,
+                low: datarow.low,
+                close: datarow.close,
+                market_name: datarow.market,
+            };
+            const result = await prisma.dataRow.create({
+                data: data,
+            });
+        }
 
-        const result = await prisma.dataRow.create({
-            data: datarow,
-        });
-
-        return res.status(201).json(result);
+        return res.status(201).json({});
     }
 
     async redirect(req: CustomRequest, res: express.Response) {
