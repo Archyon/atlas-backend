@@ -1,4 +1,5 @@
 import "ws";
+import {json} from "express";
 
 // The type of data to be sent from the websocket to the listening web client
 type DataRow = {
@@ -22,6 +23,6 @@ export class DatarowWs {
     }
 
     sendData(data: DataRow) {
-        this.ws.send("New datarow(s) added:\n" + data);
+        this.ws.send(JSON.stringify(data));
     }
 }
