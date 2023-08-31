@@ -29,7 +29,7 @@ export class MarketRouting extends Routing {
         console.log("name: " + name);
 
         // send the new added data to the websocket listeners
-        this.marketWs?.sendData(name);
+        this.marketWs?.sendData({ name: name });
 
         const result = await prisma.market.create({
             data: {

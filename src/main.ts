@@ -90,13 +90,13 @@ const datarowWs = new DatarowWs();
 
 const channelHandlers = new Map(); // map for the channel-specific handlers
 
-channelHandlers.set("/market", (ws: any) => {
+channelHandlers.set("/market", (ws: WebSocket) => {
     marketWs.connect(ws);
     marketRouting.setMarketWs(marketWs);
     datarowRouting.setMarketWs(marketWs);
 });
 
-channelHandlers.set("/datarow", (ws: any) => {
+channelHandlers.set("/datarow", (ws: WebSocket) => {
     datarowWs.connect(ws);
     marketRouting.setDatarowWs(datarowWs);
     datarowRouting.setDatarowWs(datarowWs);

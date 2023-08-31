@@ -43,11 +43,9 @@ export class DataRowRouting extends Routing {
             // convert UNIX timestamp to Date
             let time = new Date();
             const unixtime = time.valueOf();
-
             time = new Date(unixtime);
 
             const data = {
-                // time: datarow.time.toString(),
                 time: time,
                 open: datarow.open,
                 high: datarow.high,
