@@ -14,6 +14,8 @@ import { MarketRouting } from "./routes/market";
 import { DataRowRouting } from "./routes/datarow";
 import { MarketWs } from "./websockets/marketWs";
 import { DatarowWs } from "./websockets/datarowWs";
+import { StatusWs } from "./websockets/status";
+import { StatusRouting } from "./routes/status";
 
 // Parse environment file.
 // dotenv.config();
@@ -81,6 +83,7 @@ const marketRouting = new MarketRouting();
 const datarowRouting = new DataRowRouting();
 app.use("/market", marketRouting.toRouter());
 app.use("/datarow", datarowRouting.toRouter());
+app.use("/status", new StatusRouting().toRouter());
 
 // Use websockets
 const WebSocket = require("ws");
@@ -91,14 +94,19 @@ channelHandlers.set("/market", (ws: WebSocket) => {
     const marketWs = new MarketWs();
     marketWs.connect(ws);
     marketRouting.setMarketWs(marketWs);
-    datarowRouting.setMarketWs(marketWs);
+    // datarowRouting.setMarketWs(marketWs);
 });
 
 channelHandlers.set("/datarow", (ws: WebSocket) => {
     const datarowWs = new DatarowWs();
     datarowWs.connect(ws);
-    marketRouting.setDatarowWs(datarowWs);
+    // marketRouting.setDatarowWs(datarowWs);
     datarowRouting.setDatarowWs(datarowWs);
+});
+
+channelHandlers.set("/status", (ws: WebSocket) => {
+    const statusWs = new StatusWs();
+    statusWs.connect(ws);
 });
 
 server.on("upgrade", (req: express.Request, socket: any, head: any) => {
