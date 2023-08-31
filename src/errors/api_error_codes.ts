@@ -10,6 +10,7 @@ export enum APIErrorCode {
     METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
     INTERNAL_SERVER_ERROR = 500,
+    NOT_IMPLEMENTED = 501,
 }
 
 /**
@@ -32,6 +33,8 @@ export function errorMessage(code: APIErrorCode): string {
             return "Method not allowed";
         case APIErrorCode.INTERNAL_SERVER_ERROR:
             return "Internal Server Error";
+        case APIErrorCode.NOT_IMPLEMENTED:
+            return "Not implemented";
         default:
             console.error(
                 `ERROR: an unknown error message was raised: ${code}`,

@@ -35,7 +35,7 @@ export class DataRowRouting extends Routing {
         return res.status(200).json(result);
     }
 
-    createOne = async (req: CustomRequest, res: express.Response) => {
+    create = async (req: CustomRequest, res: express.Response) => {
         // send the new added data to the websocket listeners
         for (const ws of this.datarowWebSockets) {
             ws.sendData(req.body);

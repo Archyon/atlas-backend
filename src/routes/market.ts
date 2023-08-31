@@ -24,7 +24,7 @@ export class MarketRouting extends Routing {
         return res.status(200).json(result);
     }
 
-    createOne = async (req: CustomRequest, res: express.Response) => {
+    create = async (req: CustomRequest, res: express.Response) => {
         const name = req.body["name"];
 
         // send the new added data to the websocket listeners

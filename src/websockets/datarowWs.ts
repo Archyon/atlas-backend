@@ -1,4 +1,3 @@
-import "ws";
 import { WebSocket } from "./WebSocket";
 
 export class DatarowWs extends WebSocket {

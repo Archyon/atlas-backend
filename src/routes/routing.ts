@@ -35,7 +35,7 @@ export abstract class Routing {
         throw new Error("Not implemented");
     }
 
-    createOne(req: CustomRequest, res: express.Response) {
+    create(req: CustomRequest, res: express.Response) {
         throw new Error("Not implemented");
     }
 
@@ -48,7 +48,7 @@ export abstract class Routing {
         const router = express.Router();
         router.get("/", this.getAll);
         router.get("/:id", this.getOne);
-        router.post("/", this.createOne);
+        router.post("/", this.create);
         router.notify("/", this.redirect);
         return router;
     }
