@@ -16,15 +16,15 @@ export type CustomRequest = express.Request<any, any, any, any, any>;
  * express.Response object. The functions can be asynchronous.
  */
 export abstract class Routing {
-    protected marketWs: MarketWs | undefined;
-    protected datarowWs: DatarowWs | undefined;
+    protected marketWebSockets: MarketWs[] = [];
+    protected datarowWebSockets: DatarowWs[] = [];
 
     setMarketWs(marketWs: MarketWs) {
-        this.marketWs = marketWs;
+        this.marketWebSockets.push(marketWs);
     }
 
     setDatarowWs(datarowWs: DatarowWs) {
-        this.datarowWs = datarowWs;
+        this.datarowWebSockets.push(datarowWs);
     }
 
     getAll(req: CustomRequest, res: express.Response) {

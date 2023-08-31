@@ -37,7 +37,9 @@ export class DataRowRouting extends Routing {
 
     createOne = async (req: CustomRequest, res: express.Response) => {
         // send the new added data to the websocket listeners
-        this.datarowWs?.sendData(req.body);
+        for (const ws of this.datarowWebSockets) {
+            ws.sendData(req.body);
+        }
 
         for (let datarow of req.body) {
             // convert UNIX timestamp to Date

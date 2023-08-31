@@ -85,18 +85,17 @@ app.use("/datarow", datarowRouting.toRouter());
 // Use websockets
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ noServer: true });
-const marketWs = new MarketWs();
-const datarowWs = new DatarowWs();
-
 const channelHandlers = new Map(); // map for the channel-specific handlers
 
 channelHandlers.set("/market", (ws: WebSocket) => {
+    const marketWs = new MarketWs();
     marketWs.connect(ws);
     marketRouting.setMarketWs(marketWs);
     datarowRouting.setMarketWs(marketWs);
 });
 
 channelHandlers.set("/datarow", (ws: WebSocket) => {
+    const datarowWs = new DatarowWs();
     datarowWs.connect(ws);
     marketRouting.setDatarowWs(datarowWs);
     datarowRouting.setDatarowWs(datarowWs);
