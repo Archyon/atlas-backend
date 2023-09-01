@@ -81,9 +81,10 @@ app.use(morgan("dev"));
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();
 const datarowRouting = new DataRowRouting();
+const statusRouting = new StatusRouting();
 app.use("/market", marketRouting.toRouter());
 app.use("/datarow", datarowRouting.toRouter());
-app.use("/status", new StatusRouting().toRouter());
+app.use("/status", statusRouting.toRouter());
 
 // Use websockets
 const WebSocket = require("ws");
@@ -94,19 +95,18 @@ channelHandlers.set("/market", (ws: WebSocket) => {
     const marketWs = new MarketWs();
     marketWs.connect(ws);
     marketRouting.setMarketWs(marketWs);
-    // datarowRouting.setMarketWs(marketWs);
 });
 
 channelHandlers.set("/datarow", (ws: WebSocket) => {
     const datarowWs = new DatarowWs();
     datarowWs.connect(ws);
-    // marketRouting.setDatarowWs(datarowWs);
     datarowRouting.setDatarowWs(datarowWs);
 });
 
 channelHandlers.set("/status", (ws: WebSocket) => {
     const statusWs = new StatusWs();
     statusWs.connect(ws);
+    statusRouting.setStatusWs(statusWs);
 });
 
 server.on("upgrade", (req: express.Request, socket: any, head: any) => {
