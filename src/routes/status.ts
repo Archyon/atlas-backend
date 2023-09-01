@@ -25,31 +25,39 @@ export class StatusRouting extends Routing {
         const type = req.body["type"];
         const container = req.body["container"];
 
-        // console.log("states: " + JSON.stringify(this.states));
-
         if (container in this.states) {
             const existing = this.states[container];
 
-            // TODO check if new data is different from existing data
+            // check if new data is different from existing data
             const result = changeValues(existing, req.body["data"]);
-            const changed = result.changed;
             this.states[container] = result.states;
 
-            // TODO send changed data through socket
+            // send changed data through socket
+            const changed = parse(result.changed, container);
+            for (const statusWs of this.statusWebSockets) {
+                statusWs.sendData(changed);
+            }
 
             // TODO if type == warning, send warning message through socket
+            if (type === "warning") {
+                const warning = {
+                    origin: req.body["origin"],
+                    message: req.body["message"],
+                    ref: req.body["ref"],
+                };
+            }
 
             return res.status(201).json(this.states);
         } else {
             const data = req.body["data"];
 
-            // parse data and put in dict states
+            // Parse data and put in dict states
             let parsed = parse(data, container);
             this.states = Object.assign({}, this.states, parsed);
 
             // Send the new data through the socket
-            for (const websocket of this.statusWebSockets) {
-                websocket.sendData(parsed);
+            for (const statusWs of this.statusWebSockets) {
+                statusWs.sendData(parsed);
             }
 
             if (type === "warning") {
@@ -62,6 +70,5 @@ export class StatusRouting extends Routing {
             }
             return res.status(201).json(parsed);
         }
-        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     };
 }

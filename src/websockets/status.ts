@@ -5,8 +5,4 @@ export class StatusWs extends WebSocket {
         super();
         this.type = "status";
     }
-
-    sendData(data: any) {
-        super.sendData(data);
-    }
 }
