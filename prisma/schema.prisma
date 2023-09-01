@@ -12,7 +12,7 @@ datasource db {
 }
 
 model Market {
-  name    String   @unique
+  name    String   @id
 
   datarows  DataRow[]
 }
@@ -31,4 +31,12 @@ model DataRow {
   market        Market @relation(fields: [market_name], references: [name])
 
   @@id([time, market_name])
+}
+
+model Warning {
+  id        Int     @id @default(autoincrement())
+
+  origin    String
+  message   String
+  ref       String
 }

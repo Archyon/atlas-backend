@@ -2,6 +2,7 @@ import express from "express";
 import { MarketWs } from "../websockets/marketWs";
 import { DatarowWs } from "../websockets/datarowWs";
 import { StatusWs } from "../websockets/status";
+import { WarningWs } from "../websockets/warning";
 import { APIError } from "../errors/api_error";
 import { APIErrorCode } from "../errors/api_error_codes";
 
@@ -22,6 +23,7 @@ export abstract class Routing {
     protected marketWebSockets: MarketWs[] = [];
     protected datarowWebSockets: DatarowWs[] = [];
     protected statusWebSockets: StatusWs[] = [];
+    protected warningWebSockets: WarningWs[] = [];
 
     setMarketWs(marketWs: MarketWs) {
         this.marketWebSockets.push(marketWs);
@@ -33,6 +35,10 @@ export abstract class Routing {
 
     setStatusWs(statusWs: StatusWs) {
         this.statusWebSockets.push(statusWs);
+    }
+
+    setWarningWs(warningWs: WarningWs) {
+        this.warningWebSockets.push(warningWs);
     }
 
     getAll(req: CustomRequest, res: express.Response) {
