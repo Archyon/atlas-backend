@@ -4,9 +4,16 @@ import express from "express";
 import { APIError } from "../errors/api_error";
 import { APIErrorCode } from "../errors/api_error_codes";
 import { changeValues, parse, StateView } from "../parser";
+import { WarningRouting } from "./warning";
 
 export class StatusRouting extends Routing {
     private states: StateView = {};
+    private warningRouting: WarningRouting;
+
+    constructor(warningRouting: WarningRouting) {
+        super();
+        this.warningRouting = warningRouting;
+    }
 
     getAll = (req: CustomRequest, res: express.Response) => {
         const container: string = req.query["container"];
@@ -38,13 +45,9 @@ export class StatusRouting extends Routing {
                 statusWs.sendData(changed);
             }
 
-            // TODO if type == warning, send warning message through socket
+            // If type is warning, send warning message through socket
             if (type === "warning") {
-                const warning = {
-                    origin: req.body["origin"],
-                    message: req.body["message"],
-                    ref: req.body["ref"],
-                };
+                await this.handleWarning(req, res);
             }
 
             return res.status(201).json(this.states);
@@ -60,15 +63,22 @@ export class StatusRouting extends Routing {
                 statusWs.sendData(parsed);
             }
 
+            // If type is warning, send warning message through socket
             if (type === "warning") {
-                const warning = {
-                    origin: req.body["origin"],
-                    message: req.body["message"],
-                    ref: req.body["ref"],
-                };
-                // TODO send origin, message and ref to warning endpoint
+                await this.handleWarning(req, res);
             }
+
             return res.status(201).json(parsed);
         }
     };
+
+    async handleWarning(req: CustomRequest, res: express.Response) {
+        // redirect the warning to the warning endpoint
+        const warning = {
+            origin: req.body["origin"],
+            message: req.body["message"],
+            ref: req.body["ref"],
+        };
+        await this.warningRouting.createWarning(warning, res);
+    }
 }

@@ -83,8 +83,8 @@ app.use(morgan("dev"));
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();
 const datarowRouting = new DataRowRouting();
-const statusRouting = new StatusRouting();
 const warningRouting = new WarningRouting();
+const statusRouting = new StatusRouting(warningRouting);
 app.use("/market", marketRouting.toRouter());
 app.use("/datarow", datarowRouting.toRouter());
 app.use("/status", statusRouting.toRouter());
