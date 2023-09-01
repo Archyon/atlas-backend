@@ -2,6 +2,8 @@ import express from "express";
 import { MarketWs } from "../websockets/marketWs";
 import { DatarowWs } from "../websockets/datarowWs";
 import { StatusWs } from "../websockets/status";
+import { APIError } from "../errors/api_error";
+import { APIErrorCode } from "../errors/api_error_codes";
 
 export type CustomRequest = express.Request<any, any, any, any, any>;
 
@@ -34,19 +36,19 @@ export abstract class Routing {
     }
 
     getAll(req: CustomRequest, res: express.Response) {
-        throw new Error("Not implemented");
+        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
 
     getOne(req: CustomRequest, res: express.Response) {
-        throw new Error("Not implemented");
+        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
 
     create(req: CustomRequest, res: express.Response) {
-        throw new Error("Not implemented");
+        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
 
     redirect(req: CustomRequest, res: express.Response) {
-        throw new Error("Not implemented");
+        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
 
     // Construct a new router which contains all the mentioned functions.
