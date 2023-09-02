@@ -3,7 +3,7 @@ import { CustomRequest, Routing } from "./routing";
 import express from "express";
 import { APIError } from "../errors/api_error";
 import { APIErrorCode } from "../errors/api_error_codes";
-import { changeValues, parse, StateView } from "../parser";
+import { changeValues, parse, retrievePaths, StateView } from "../parser";
 import { WarningRouting } from "./warning";
 
 export class StatusRouting extends Routing {
@@ -21,7 +21,13 @@ export class StatusRouting extends Routing {
         if (container === undefined) {
             return res.status(200).json(this.states);
         } else if (container in this.states) {
-            // TODO only show the requested values
+            if ("values" in req.query) {
+                // Only show the requested values
+                let values = req.query["values"];
+                values = values.substring(1, values.length - 1).split(",");
+                const states = retrievePaths(this.states[container], values);
+                return res.status(200).json({ [container]: states });
+            }
             return res.status(200).json(this.states[container]);
         } else {
             throw new APIError(APIErrorCode.NOT_FOUND);

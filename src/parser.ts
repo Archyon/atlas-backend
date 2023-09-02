@@ -123,6 +123,12 @@ export function changeValues(states: StateView, data: StateView) {
     };
 }
 
+/**
+ * Change the value of a key in a JSON
+ * @param states    => the JSON object
+ * @param keys      => the path to the key of which the value needs to be changed
+ * @param value     => the new value for the key
+ */
 function changeValue(states: StateView, keys: string[], value: any): StateView {
     const key = keys.pop();
     if (keys.length === 0 && key !== undefined) {
@@ -133,4 +139,41 @@ function changeValue(states: StateView, keys: string[], value: any): StateView {
         states[key] = newstates;
     }
     return states;
+}
+
+/**
+ * Retrieve only the given paths from a JSON object.
+ * @param states    => the JSON object
+ * @param paths     => a list of paths of keys that need to be retrieved, each path is of the format `key1/key2/key3...`
+ */
+export function retrievePaths(states: StateView, paths: string[]): StateView {
+    let retrieved: StateView = {};
+    for (const path of paths) {
+        const keys = path.split("/");
+        keys.reverse();
+        retrieved = retrievePath(states, keys, retrieved);
+    }
+    return retrieved;
+}
+
+/**
+ * Retrieve a specific path from a JSON object. This is a recursive function where the given JSON object (`states`)
+ * reduces at every function call.
+ * @param states    => the JSON object
+ * @param keys      => the path of keys to store at `result`
+ * @param result    => the result is given along as argument and changes in every function call
+ */
+function retrievePath(states: StateView, keys: string[], result: StateView) {
+    const key = keys.pop();
+    if (key !== undefined && keys.length === 0) {
+        result[key] = states[key];
+    } else if (key !== undefined) {
+        if (key in result) {
+            const value = retrievePath(states[key], keys, result[key]);
+            result[key] = Object.assign({}, result[key], value);
+        } else {
+            result[key] = retrievePath(states[key], keys, {});
+        }
+    }
+    return result;
 }
