@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { CustomRequest, Routing } from "./routing";
-import { StateView } from "../parser";
+import { parse, StateView } from "../parser";
 
 const prisma = new PrismaClient();
 
@@ -23,12 +23,15 @@ export class WarningRouting extends Routing {
     }
 
     create = async (req: CustomRequest, res: express.Response) => {
+        const ref = parse(req.body["ref"], "temp")["temp"];
+        console.log("ref: " + JSON.stringify(ref));
         const data = {
             time: new Date(),
             origin: req.body["origin"],
             message: req.body["message"],
-            ref: JSON.stringify(req.body["ref"]),
+            ref: JSON.stringify(ref),
         };
+
         const result = await prisma.warning.create({
             data: data,
         });
@@ -41,13 +44,14 @@ export class WarningRouting extends Routing {
     };
 
     createWarning = async (warning: StateView, res: express.Response) => {
+        const ref = parse(warning.ref, "temp")["temp"];
         const data = {
             time: new Date(),
             origin: warning.origin,
             message: warning.message,
-            ref: JSON.stringify(warning.ref),
+            ref: JSON.stringify(ref),
         };
-        console.log(typeof data.time);
+
         const result = await prisma.warning.create({
             data: data,
         });

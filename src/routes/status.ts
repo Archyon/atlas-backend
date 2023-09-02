@@ -33,6 +33,7 @@ export class StatusRouting extends Routing {
         const container = req.body["container"];
 
         if (container in this.states) {
+            // The container already exists in the tracked states
             const existing = this.states[container];
 
             // check if new data is different from existing data
@@ -40,9 +41,12 @@ export class StatusRouting extends Routing {
             this.states[container] = result.states;
 
             // send changed data through socket
-            const changed = parse(result.changed, container);
-            for (const statusWs of this.statusWebSockets) {
-                statusWs.sendData(changed);
+            if (Object.keys(result.changed).length > 0) {
+                const changed = parse(result.changed, container);
+                console.log("changed: " + JSON.stringify(changed));
+                for (const statusWs of this.statusWebSockets) {
+                    statusWs.sendData(changed);
+                }
             }
 
             // If type is warning, send warning message through socket
@@ -52,6 +56,7 @@ export class StatusRouting extends Routing {
 
             return res.status(201).json(this.states);
         } else {
+            // The container does not exist yet in the states so it needs to be added, along with its new values
             const data = req.body["data"];
 
             // Parse data and put in dict states
