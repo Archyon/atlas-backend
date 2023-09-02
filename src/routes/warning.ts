@@ -7,7 +7,20 @@ const prisma = new PrismaClient();
 
 export class WarningRouting extends Routing {
     async getAll(req: CustomRequest, res: express.Response) {
-        const result = await prisma.warning.findMany();
+        const result = await prisma.warning.findMany({
+            where: {
+                time: {
+                    lte: req.query["before"],
+                    gte: req.query["after"],
+                },
+                message: {
+                    contains: req.query["message"],
+                },
+                origin: {
+                    contains: req.query["origin"],
+                },
+            },
+        });
 
         return res.status(200).json(result);
     }
@@ -24,7 +37,6 @@ export class WarningRouting extends Routing {
 
     create = async (req: CustomRequest, res: express.Response) => {
         const ref = parse(req.body["ref"], "temp")["temp"];
-        console.log("ref: " + JSON.stringify(ref));
         const data = {
             time: new Date(),
             origin: req.body["origin"],
