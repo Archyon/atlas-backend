@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import dotenv from "dotenv";
 import { ErrorHandler } from "./errors/error_handler";
 import "express-async-errors";
 // import compression from "compression";
@@ -20,7 +21,7 @@ import { WarningWs } from "./websockets/warning";
 import { WarningRouting } from "./routes/warning";
 
 // Parse environment file.
-// dotenv.config();
+dotenv.config();
 
 const PORT_NUMBER = 8080;
 
