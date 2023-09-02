@@ -55,7 +55,7 @@ export class WarningRouting extends Routing {
         return res.status(201).json(result);
     };
 
-    createWarning = async (warning: StateView, res: express.Response) => {
+    createWarning = async (warning: StateView) => {
         const ref = parse(warning.ref, "temp")["temp"];
         const data = {
             time: new Date(),

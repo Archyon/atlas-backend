@@ -24,7 +24,6 @@ export class DataRowRouting extends Routing {
 
         const result = await prisma.dataRow.findUniqueOrThrow({
             where: {
-                // @ts-ignore
                 time_market_name: {
                     time: new Date(time),
                     market_name: req.body["market"],

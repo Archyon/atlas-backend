@@ -90,6 +90,6 @@ export class StatusRouting extends Routing {
             message: req.body["message"],
             ref: req.body["ref"],
         };
-        await this.warningRouting.createWarning(warning, res);
+        await this.warningRouting.createWarning(warning);
     }
 }

@@ -55,8 +55,7 @@ export function parse(data: StateView, container: string) {
 function addValue(states: StateView, keys: string[], value: any): StateView {
     const key = keys.pop();
     if (key !== undefined && key in states) {
-        const substates = addValue(states[key], keys, value);
-        states[key] = substates;
+        states[key] = addValue(states[key], keys, value);
     } else if (key !== undefined) {
         states[key] = value;
     }
@@ -135,8 +134,7 @@ function changeValue(states: StateView, keys: string[], value: any): StateView {
         states[key] = value;
         return states;
     } else if (key !== undefined) {
-        const newstates = changeValue(states[key], keys, value);
-        states[key] = newstates;
+        states[key] = changeValue(states[key], keys, value);
     }
     return states;
 }
