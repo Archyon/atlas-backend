@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import dotenv from "dotenv";
 import { ErrorHandler } from "./errors/error_handler";
 import "express-async-errors";
 // import compression from "compression";
@@ -18,9 +19,12 @@ import { StatusWs } from "./websockets/status";
 import { StatusRouting } from "./routes/status";
 import { WarningWs } from "./websockets/warning";
 import { WarningRouting } from "./routes/warning";
+import { CustomRequest } from "./routes/routing";
+import { APIError } from "./errors/api_error";
+import { APIErrorCode } from "./errors/api_error_codes";
 
 // Parse environment file.
-// dotenv.config();
+dotenv.config();
 
 const PORT_NUMBER = 8080;
 
@@ -79,6 +83,47 @@ app.use(
 
 // Morgan logs and prints all incoming requests
 app.use(morgan("dev"));
+
+// authentication using auth0
+const { auth } = require("express-oauth2-jwt-bearer");
+const jwtCheck = auth({
+    audience: "http://localhost:8080",
+    issuerBaseURL: "https://dev-sqg3xz8h1fpw2nan.eu.auth0.com/",
+    tokenSigningAlg: "RS256",
+});
+
+// authentication of microservice using jwt
+const jwt = require("jsonwebtoken");
+function authenticate(
+    req: CustomRequest,
+    res: express.Response,
+    next: express.NextFunction,
+) {
+    const token = req.headers["authorization"];
+    console.log("token: " + token);
+
+    if (token == null) {
+        throw new APIError(APIErrorCode.FORBIDDEN);
+    }
+
+    jwt.verify(
+        token,
+        process.env.SECRET_TOKEN as string,
+        (err: any, microservice: any) => {
+            if (err) {
+                /* it's a user trying the access the api instead of the microservice
+                   so the validity of the user needs to be checked with auth0 */
+                console.log("check user with auth0");
+                jwtCheck(req, res, next);
+            } else {
+                console.log("microservice: " + microservice);
+                next();
+            }
+        },
+    );
+}
+
+app.use(authenticate);
 
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();

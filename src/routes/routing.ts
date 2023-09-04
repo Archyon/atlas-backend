@@ -25,18 +25,22 @@ export abstract class Routing {
     protected statusWebSockets: StatusWs[] = [];
     protected warningWebSockets: WarningWs[] = [];
 
+    // add a new market websocket to the list
     setMarketWs(marketWs: MarketWs) {
         this.marketWebSockets.push(marketWs);
     }
 
+    // add a new datarow websocket to the list
     setDatarowWs(datarowWs: DatarowWs) {
         this.datarowWebSockets.push(datarowWs);
     }
 
+    // add a new status websocket to the list
     setStatusWs(statusWs: StatusWs) {
         this.statusWebSockets.push(statusWs);
     }
 
+    // add a new warning websocket to the list
     setWarningWs(warningWs: WarningWs) {
         this.warningWebSockets.push(warningWs);
     }
