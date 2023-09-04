@@ -109,31 +109,31 @@ function authenticate(
     jwt.verify(
         token,
         process.env.SECRET_TOKEN as string,
-        (err: any, user: any) => {
-            console.log("err: " + err);
+        (err: any, microservice: any) => {
             if (err) {
-                // TODO check for user authentication
-                throw new APIError(APIErrorCode.FORBIDDEN);
+                /* it's a user trying the access the api instead of the microservice
+                   so the validity of the user needs to be checked with auth0 */
+                console.log("check user with auth0");
+                jwtCheck(req, res, next);
+            } else {
+                console.log("microservice: " + microservice);
+                next();
             }
-            console.log("user: " + user);
-            next();
         },
     );
 }
+
+app.use(authenticate);
 
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();
 const datarowRouting = new DataRowRouting();
 const warningRouting = new WarningRouting();
 const statusRouting = new StatusRouting(warningRouting);
-app.use("/market", jwtCheck, marketRouting.toRouter());
-app.use("/engine/market", authenticate, marketRouting.toRouter());
-app.use("/datarow", jwtCheck, datarowRouting.toRouter());
-app.use("/engine/datarow", authenticate, datarowRouting.toRouter());
-app.use("/status", jwtCheck, statusRouting.toRouter());
-app.use("/engine/status", authenticate, statusRouting.toRouter());
-app.use("/warning", jwtCheck, warningRouting.toRouter());
-app.use("/engine/warning", authenticate, warningRouting.toRouter());
+app.use("/market", marketRouting.toRouter());
+app.use("/datarow", datarowRouting.toRouter());
+app.use("/status", statusRouting.toRouter());
+app.use("/warning", warningRouting.toRouter());
 
 // Use websockets
 const WebSocket = require("ws");
