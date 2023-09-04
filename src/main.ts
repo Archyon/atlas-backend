@@ -19,6 +19,9 @@ import { StatusWs } from "./websockets/status";
 import { StatusRouting } from "./routes/status";
 import { WarningWs } from "./websockets/warning";
 import { WarningRouting } from "./routes/warning";
+import { CustomRequest } from "./routes/routing";
+import { APIError } from "./errors/api_error";
+import { APIErrorCode } from "./errors/api_error_codes";
 
 // Parse environment file.
 dotenv.config();
@@ -81,15 +84,56 @@ app.use(
 // Morgan logs and prints all incoming requests
 app.use(morgan("dev"));
 
+// authentication using auth0
+const { auth } = require("express-oauth2-jwt-bearer");
+const jwtCheck = auth({
+    audience: "http://localhost:8080",
+    issuerBaseURL: "https://dev-sqg3xz8h1fpw2nan.eu.auth0.com/",
+    tokenSigningAlg: "RS256",
+});
+
+// authentication of microservice using jwt
+const jwt = require("jsonwebtoken");
+function authenticate(
+    req: CustomRequest,
+    res: express.Response,
+    next: express.NextFunction,
+) {
+    const token = req.headers["authorization"];
+    console.log("token: " + token);
+
+    if (token == null) {
+        throw new APIError(APIErrorCode.FORBIDDEN);
+    }
+
+    jwt.verify(
+        token,
+        process.env.SECRET_TOKEN as string,
+        (err: any, user: any) => {
+            console.log("err: " + err);
+            if (err) {
+                // TODO check for user authentication
+                throw new APIError(APIErrorCode.FORBIDDEN);
+            }
+            console.log("user: " + user);
+            next();
+        },
+    );
+}
+
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();
 const datarowRouting = new DataRowRouting();
 const warningRouting = new WarningRouting();
 const statusRouting = new StatusRouting(warningRouting);
-app.use("/market", marketRouting.toRouter());
-app.use("/datarow", datarowRouting.toRouter());
-app.use("/status", statusRouting.toRouter());
-app.use("/warning", warningRouting.toRouter());
+app.use("/market", jwtCheck, marketRouting.toRouter());
+app.use("/engine/market", authenticate, marketRouting.toRouter());
+app.use("/datarow", jwtCheck, datarowRouting.toRouter());
+app.use("/engine/datarow", authenticate, datarowRouting.toRouter());
+app.use("/status", jwtCheck, statusRouting.toRouter());
+app.use("/engine/status", authenticate, statusRouting.toRouter());
+app.use("/warning", jwtCheck, warningRouting.toRouter());
+app.use("/engine/warning", authenticate, warningRouting.toRouter());
 
 // Use websockets
 const WebSocket = require("ws");

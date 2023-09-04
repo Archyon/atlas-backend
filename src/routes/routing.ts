@@ -6,9 +6,6 @@ import { WarningWs } from "../websockets/warning";
 import { APIError } from "../errors/api_error";
 import { APIErrorCode } from "../errors/api_error_codes";
 
-// authentication of the microservice (Prometheus-engine)
-const jwt = require("jsonwebtoken");
-
 export type CustomRequest = express.Request<any, any, any, any, any>;
 
 /**
@@ -48,33 +45,6 @@ export abstract class Routing {
         this.warningWebSockets.push(warningWs);
     }
 
-    // Check api key for authentication of the microservice
-    authenticate(
-        req: CustomRequest,
-        res: express.Response,
-        next: express.NextFunction,
-    ) {
-        const token = req.headers["authorization"];
-
-        if (token == null) {
-            throw new APIError(APIErrorCode.FORBIDDEN);
-        }
-
-        jwt.verify(
-            token,
-            process.env.TOKEN_SECRET as string,
-            (err: any, user: any) => {
-                console.log("err: " + err);
-                if (err) {
-                    // TODO check for user authentication
-                    throw new APIError(APIErrorCode.FORBIDDEN);
-                }
-                console.log("user: " + user);
-                next();
-            },
-        );
-    }
-
     getAll(req: CustomRequest, res: express.Response) {
         throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
@@ -94,10 +64,10 @@ export abstract class Routing {
     // Construct a new router which contains all the mentioned functions.
     toRouter(): express.Router {
         const router = express.Router();
-        router.get("/", this.authenticate, this.getAll);
-        router.get("/:id", this.authenticate, this.getOne);
-        router.post("/", this.authenticate, this.create);
-        router.notify("/", this.authenticate, this.redirect);
+        router.get("/", this.getAll);
+        router.get("/:id", this.getOne);
+        router.post("/", this.create);
+        router.notify("/", this.redirect);
         return router;
     }
 }
