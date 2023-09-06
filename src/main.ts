@@ -1,21 +1,35 @@
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import dotenv from "dotenv";
+import { ErrorHandler } from "./errors/error_handler";
+import "express-async-errors";
 // import compression from "compression";
-// import "express-async-errors";
 // import session from "express-session";
 // import cors from "cors";
 import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
 
-import {Example} from "./routes/example";
+// Import all routes and websockets
+import { MarketRouting } from "./routes/market";
+import { DataRowRouting } from "./routes/datarow";
+import { MarketWs } from "./websockets/marketWs";
+import { DatarowWs } from "./websockets/datarowWs";
+import { StatusWs } from "./websockets/status";
+import { StatusRouting } from "./routes/status";
+import { WarningWs } from "./websockets/warning";
+import { WarningRouting } from "./routes/warning";
+import { CustomRequest } from "./routes/routing";
+import { APIError } from "./errors/api_error";
+import { APIErrorCode } from "./errors/api_error_codes";
 
 // Parse environment file.
-// dotenv.config();
+dotenv.config();
 
 const PORT_NUMBER = 8080;
 
 const app = express();
+const server = require("http").createServer(app);
 
 // Sentry
 if (process.env.SENTRY_DSN) {
@@ -70,11 +84,103 @@ app.use(
 // Morgan logs and prints all incoming requests
 app.use(morgan("dev"));
 
+// authentication using auth0
+const { auth } = require("express-oauth2-jwt-bearer");
+const jwtCheck = auth({
+    audience: "http://localhost:8080",
+    issuerBaseURL: "https://dev-sqg3xz8h1fpw2nan.eu.auth0.com/",
+    tokenSigningAlg: "RS256",
+});
+
+// authentication of microservice using jwt
+const jwt = require("jsonwebtoken");
+function authenticate(
+    req: CustomRequest,
+    res: express.Response,
+    next: express.NextFunction,
+) {
+    const token = req.headers["authorization"];
+    console.log("token: " + token);
+
+    if (token == null) {
+        throw new APIError(APIErrorCode.FORBIDDEN);
+    }
+
+    jwt.verify(
+        token,
+        process.env.SECRET_TOKEN as string,
+        (err: any, microservice: any) => {
+            if (err) {
+                /* it's a user trying the access the api instead of the microservice
+                   so the validity of the user needs to be checked with auth0 */
+                console.log("check user with auth0");
+                jwtCheck(req, res, next);
+            } else {
+                console.log("microservice: " + microservice);
+                next();
+            }
+        },
+    );
+}
+
+app.use(authenticate);
+
 // Assign the appropriate routers
-app.use("/start", new Example().toRouter());
+const marketRouting = new MarketRouting();
+const datarowRouting = new DataRowRouting();
+const warningRouting = new WarningRouting();
+const statusRouting = new StatusRouting(warningRouting);
+app.use("/market", marketRouting.toRouter());
+app.use("/datarow", datarowRouting.toRouter());
+app.use("/status", statusRouting.toRouter());
+app.use("/warning", warningRouting.toRouter());
+
+// Use websockets
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ noServer: true });
+const channelHandlers = new Map(); // map for the channel-specific handlers
+
+channelHandlers.set("/market", (ws: WebSocket) => {
+    const marketWs = new MarketWs();
+    marketWs.connect(ws);
+    marketRouting.setMarketWs(marketWs);
+});
+
+channelHandlers.set("/datarow", (ws: WebSocket) => {
+    const datarowWs = new DatarowWs();
+    datarowWs.connect(ws);
+    datarowRouting.setDatarowWs(datarowWs);
+});
+
+channelHandlers.set("/status", (ws: WebSocket) => {
+    const statusWs = new StatusWs();
+    statusWs.connect(ws);
+    statusRouting.setStatusWs(statusWs);
+});
+
+channelHandlers.set("/warning", (ws: WebSocket) => {
+    const warningWs = new WarningWs();
+    warningWs.connect(ws);
+    warningRouting.setWarningWs(warningWs);
+});
+
+server.on("upgrade", (req: express.Request, socket: any, head: any) => {
+    const channelHandler = channelHandlers.get(req.url);
+    if (channelHandler) {
+        wss.handleUpgrade(req, socket, head, (ws: any) => {
+            channelHandler(ws);
+        });
+    } else {
+        socket.destroy();
+    }
+});
+
+// Use a custom made error handler
+app.use(Sentry.Handlers.errorHandler());
+app.use(ErrorHandler.handle);
 
 // Actually start the server, we're done!
-const server = app.listen(PORT_NUMBER, () => {
+server.listen(PORT_NUMBER, () => {
     console.log(`API AVAILABLE AT: https://localhost:${PORT_NUMBER}`);
 });
 

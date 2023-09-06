@@ -14,3 +14,14 @@ yarn.lock
 # Ignore artifacts:
 dist
 prisma
+
+# Ignore json files:
+package.json
+package-lock.json
+tsconfig.json
+eslintrc.json
+.prettierrc.json
+
+# Ignore markdown files:
+CONTRIBUTORS.md
+README.md
