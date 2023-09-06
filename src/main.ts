@@ -185,7 +185,10 @@ channelHandlers.set("/warning", (ws: WebSocket) => {
 server.on("upgrade", (req: express.Request, socket: any, head: any) => {
     authenticate(req, (fun) => {
         if (fun instanceof APIError) {
-            socket.destroy();
+            wss.handleUpgrade(req, socket, head, (ws: any) => {
+                ws.send("Error 401: Unauthorized");
+                ws.close();
+            });
         } else {
             const channelHandler = channelHandlers.get(req.url);
             if (channelHandler) {
