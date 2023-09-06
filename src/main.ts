@@ -95,9 +95,8 @@ async function jwtCheck(req: CustomRequest, next: express.NextFunction) {
     };
     const verifyJwr = jwtVerifier(options);
     try {
-        const auth = req.headers["authorization"];
-        if (auth !== undefined) {
-            const token = auth.slice(7);
+        const token = req.headers["authorization"];
+        if (token !== undefined) {
             console.log("token: " + token);
             req.auth = await verifyJwr(token);
             next();

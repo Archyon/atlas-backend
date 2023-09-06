@@ -25,3 +25,6 @@ eslintrc.json
 # Ignore markdown files:
 CONTRIBUTORS.md
 README.md
+
+# Ignore jest config
+jest.config.ts
