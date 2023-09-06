@@ -8,7 +8,8 @@
     "start": "node /dist/src/main.ts",
     "serve": "nodemon src/main.ts",
     "pretest": "npx prettier --check . && npx eslint src --max-warnings 0 && tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "auth": "nodemon src/test-auth.ts"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.5",
+    "auth0-access-token-jwt": "^1.0.3",
     "dotenv": "^16.3.1",
     "express-async-errors": "^3.1.1",
     "express-oauth2-jwt-bearer": "^1.5.0",
