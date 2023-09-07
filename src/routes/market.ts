@@ -19,7 +19,6 @@ export class MarketRouting extends Routing {
                 name: name,
             },
         });
-        console.log(result);
 
         return res.status(200).json(result);
     }

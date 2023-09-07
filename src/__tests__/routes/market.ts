@@ -26,14 +26,14 @@ describe("Tests for Market endpoint that should succeed", () => {
         { name: "ENJUSDT" },
     ];
 
-    test("GET /market from microservice", async () => {
+    test("GET /market as microservice", async () => {
         const result = await session.get("/market").set(authorizationMS);
 
         expect(result.status).toEqual(200);
         expect(result.body).toEqual(markets);
     });
 
-    test("GET /market/:id from microservice", async () => {
+    test("GET /market/:id as microservice", async () => {
         const market = { name: "ATOMUSDT" };
         const result = await session
             .get("/market/ATOMUSDT")
@@ -43,7 +43,7 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(result.body).toEqual(market);
     });
 
-    test("POST /market from microservice", async () => {
+    test("POST /market as microservice", async () => {
         const market = { name: "FTMUSDT" };
         const result = await session
             .post("/market")
@@ -54,14 +54,14 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(result.body).toEqual(market);
     });
 
-    test("NOTIFY /market from microservice", async () => {
+    test("NOTIFY /market as microservice", async () => {
         const result = await session.notify("/market").set(authorizationMS);
 
         expect(result.status).toEqual(300);
         expect(result.body).toEqual({ method: "redirect" });
     });
 
-    test("GET /market from a user", async () => {
+    test("GET /market as a user", async () => {
         const token = await getAuth();
         const result = await session
             .get("/market")
@@ -71,7 +71,7 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(result.body).toEqual(markets);
     });
 
-    test("GET /market/:id from a user", async () => {
+    test("GET /market/:id as a user", async () => {
         const token = await getAuth();
         const result = await session
             .get("/market/ATOMUSDT")
@@ -81,7 +81,7 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(result.body).toEqual({ name: "ATOMUSDT" });
     });
 
-    test("POST /market from a user", async () => {
+    test("POST /market as a user", async () => {
         const market = { name: "FTMUSDT" };
         const token = await getAuth();
         const result = await session
@@ -93,7 +93,7 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(result.body).toEqual(market);
     });
 
-    test("NOTIFY /market from a user", async () => {
+    test("NOTIFY /market as a user", async () => {
         const token = await getAuth();
         const result = await session
             .notify("/market")

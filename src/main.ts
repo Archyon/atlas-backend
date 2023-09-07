@@ -97,7 +97,6 @@ async function jwtCheck(req: CustomRequest, next: express.NextFunction) {
     try {
         const token = req.headers["authorization"];
         if (token !== undefined) {
-            console.log("token: " + token);
             req.auth = await verifyJwr(token);
             next();
         } else {
@@ -113,7 +112,6 @@ const jwt = require("jsonwebtoken");
 
 function authenticate(req: CustomRequest, next: express.NextFunction) {
     const token = req.headers["authorization"];
-    console.log("token: " + token);
 
     if (token == null) {
         next(new APIError(APIErrorCode.UNAUTHORIZED));
@@ -127,7 +125,6 @@ function authenticate(req: CustomRequest, next: express.NextFunction) {
                 /* it's a user trying the access the api instead of the microservice
                    so the validity of the user needs to be checked with auth0 */
                 console.log("check user with auth0");
-                // jwtCheck(req, res, next);
                 await jwtCheck(req, next);
             } else {
                 console.log("microservice: " + microservice);
