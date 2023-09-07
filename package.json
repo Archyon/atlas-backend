@@ -9,7 +9,7 @@
     "serve": "nodemon src/main.ts",
     "pretest": "npx prettier --check .",
     "mock": "npx ts-node src/__tests__/mock/main.ts",
-    "test": "jest --coverage"
+    "test": "jest --coverage --maxWorkers=1"
   },
   "author": "",
   "license": "ISC",
