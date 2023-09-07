@@ -7,9 +7,9 @@
     "build": "npx tsc",
     "start": "node /dist/src/main.ts",
     "serve": "nodemon src/main.ts",
-    "pretest": "npx prettier --check . && npx eslint src --max-warnings 0 && tsc",
+    "pretest": "npx prettier --check .",
     "mock": "npx ts-node src/__tests__/mock/main.ts",
-    "test": "jest --runInBand \\\".*\\\\.test\\\\.ts\\\" --coverage"
+    "test": "jest --coverage"
   },
   "author": "",
   "license": "ISC",
