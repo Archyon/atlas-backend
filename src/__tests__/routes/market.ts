@@ -51,7 +51,18 @@ describe("Tests for Market endpoint that should succeed", () => {
             .set(authorizationMS);
 
         expect(result.status).toEqual(201);
-        expect(result.body).toEqual(market);
+        expect(result.body).toEqual({});
+
+        const expected = [
+            { name: "ATOMUSDT" },
+            { name: "BTCUSDT" },
+            { name: "ENJUSDT" },
+            { name: "FTMUSDT" },
+        ];
+        const checkData = await session.get("/market").set(authorizationMS);
+
+        expect(checkData.status).toEqual(200);
+        expect(checkData.body).toEqual(expected);
     });
 
     test("NOTIFY /market as microservice", async () => {
@@ -90,7 +101,20 @@ describe("Tests for Market endpoint that should succeed", () => {
             .set(authorizationUser(token));
 
         expect(result.status).toEqual(201);
-        expect(result.body).toEqual(market);
+        expect(result.body).toEqual({});
+
+        const expected = [
+            { name: "ATOMUSDT" },
+            { name: "BTCUSDT" },
+            { name: "ENJUSDT" },
+            { name: "FTMUSDT" },
+        ];
+        const checkData = await session
+            .get("/market")
+            .set(authorizationUser(token));
+
+        expect(checkData.status).toEqual(200);
+        expect(checkData.body).toEqual(expected);
     });
 
     test("NOTIFY /market as a user", async () => {

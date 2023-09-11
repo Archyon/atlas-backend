@@ -37,7 +37,7 @@ export class MarketRouting extends Routing {
             ws.sendData({ name: name });
         }
 
-        return res.status(201).json(result);
+        return res.status(201).json({});
     };
 
     async redirect(req: CustomRequest, res: express.Response) {
