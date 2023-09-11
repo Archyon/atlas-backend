@@ -5,6 +5,7 @@ import { APIError } from "../errors/api_error";
 import { APIErrorCode } from "../errors/api_error_codes";
 import { changeValues, parse, retrievePaths, StateView } from "../parser";
 import { WarningRouting } from "./warning";
+import e from "express";
 
 export class StatusRouting extends Routing {
     private states: StateView = {};
@@ -26,7 +27,7 @@ export class StatusRouting extends Routing {
                 let values = req.query["values"];
                 values = values.substring(1, values.length - 1).split(",");
                 const states = retrievePaths(this.states[container], values);
-                return res.status(200).json({ [container]: states });
+                return res.status(200).json(states);
             }
             return res.status(200).json(this.states[container]);
         } else {
@@ -60,7 +61,7 @@ export class StatusRouting extends Routing {
                 await this.handleWarning(req, res);
             }
 
-            return res.status(201).json(this.states);
+            return res.status(201).json({});
         } else {
             // The container does not exist yet in the states so it needs to be added, along with its new values
             const data = req.body["data"];
@@ -79,7 +80,7 @@ export class StatusRouting extends Routing {
                 await this.handleWarning(req, res);
             }
 
-            return res.status(201).json(parsed);
+            return res.status(201).json({});
         }
     };
 
@@ -91,5 +92,16 @@ export class StatusRouting extends Routing {
             ref: req.body["ref"],
         };
         await this.warningRouting.createWarning(warning);
+    }
+
+    deleteAll = (req: CustomRequest, res: express.Response) => {
+        this.states = {};
+        return res.status(200).json(this.states);
+    };
+
+    toRouter(): e.Router {
+        const router = super.toRouter();
+        router.delete("/", this.deleteAll);
+        return router;
     }
 }
