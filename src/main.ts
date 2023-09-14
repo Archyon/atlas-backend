@@ -86,6 +86,7 @@ app.use(morgan("dev"));
 
 // authentication using auth0
 import { jwtVerifier } from "auth0-access-token-jwt";
+import { CommandRouting } from "./routes/command";
 
 async function jwtCheck(req: CustomRequest, next: express.NextFunction) {
     const options = {
@@ -152,6 +153,7 @@ app.use("/market", marketRouting.toRouter());
 app.use("/datarow", datarowRouting.toRouter());
 app.use("/status", statusRouting.toRouter());
 app.use("/warning", warningRouting.toRouter());
+app.use("/command", new CommandRouting().toRouter());
 
 // Use websockets
 const WebSocket = require("ws");

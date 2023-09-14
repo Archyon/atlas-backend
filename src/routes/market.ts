@@ -40,12 +40,4 @@ export class MarketRouting extends Routing {
 
         return res.status(201).json(result);
     };
-
-    async redirect(req: CustomRequest, res: express.Response) {
-        const result = {
-            method: "redirect",
-        };
-
-        return res.status(300).json(result);
-    }
 }

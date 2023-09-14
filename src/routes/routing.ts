@@ -57,17 +57,12 @@ export abstract class Routing {
         throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
     }
 
-    redirect(req: CustomRequest, res: express.Response) {
-        throw new APIError(APIErrorCode.NOT_IMPLEMENTED);
-    }
-
     // Construct a new router which contains all the mentioned functions.
     toRouter(): express.Router {
         const router = express.Router();
         router.get("/", this.getAll);
         router.get("/:id", this.getOne);
         router.post("/", this.create);
-        router.notify("/", this.redirect);
         return router;
     }
 }
