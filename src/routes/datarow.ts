@@ -61,11 +61,4 @@ export class DataRowRouting extends Routing {
 
         return res.status(201).json({});
     };
-
-    async redirect(req: CustomRequest, res: express.Response) {
-        const result = {
-            method: "redirect",
-        };
-        return res.status(300).json(result);
-    }
 }

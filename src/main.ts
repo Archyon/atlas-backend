@@ -85,36 +85,52 @@ app.use(
 app.use(morgan("dev"));
 
 // authentication using auth0
-const { auth } = require("express-oauth2-jwt-bearer");
-const jwtCheck = auth({
-    audience: "http://localhost:8080",
-    issuerBaseURL: "https://dev-sqg3xz8h1fpw2nan.eu.auth0.com/",
-    tokenSigningAlg: "RS256",
-});
+import { jwtVerifier } from "auth0-access-token-jwt";
+import { CommandRouting } from "./routes/command";
+
+async function jwtCheck(req: CustomRequest, next: express.NextFunction) {
+    const options = {
+        audience: "http://localhost:8080",
+        issuerBaseURL: "https://dev-sqg3xz8h1fpw2nan.eu.auth0.com/",
+        tokenSigningAlg: "RS256",
+    };
+    const verifyJwr = jwtVerifier(options);
+    try {
+        const auth = req.headers["authorization"];
+        if (auth !== undefined) {
+            const token = auth.slice(7);
+            console.log("token: " + token);
+            req.auth = await verifyJwr(token);
+            next();
+        } else {
+            next(new APIError(APIErrorCode.UNAUTHORIZED));
+        }
+    } catch (e) {
+        next(new APIError(APIErrorCode.UNAUTHORIZED));
+    }
+}
 
 // authentication of microservice using jwt
 const jwt = require("jsonwebtoken");
-function authenticate(
-    req: CustomRequest,
-    res: express.Response,
-    next: express.NextFunction,
-) {
+
+function authenticate(req: CustomRequest, next: express.NextFunction) {
     const token = req.headers["authorization"];
     console.log("token: " + token);
 
     if (token == null) {
-        throw new APIError(APIErrorCode.FORBIDDEN);
+        next(new APIError(APIErrorCode.UNAUTHORIZED));
     }
 
     jwt.verify(
         token,
         process.env.SECRET_TOKEN as string,
-        (err: any, microservice: any) => {
+        async (err: any, microservice: any) => {
             if (err) {
                 /* it's a user trying the access the api instead of the microservice
                    so the validity of the user needs to be checked with auth0 */
                 console.log("check user with auth0");
-                jwtCheck(req, res, next);
+                // jwtCheck(req, res, next);
+                await jwtCheck(req, next);
             } else {
                 console.log("microservice: " + microservice);
                 next();
@@ -123,7 +139,10 @@ function authenticate(
     );
 }
 
-app.use(authenticate);
+app.use(
+    (req: CustomRequest, res: express.Response, next: express.NextFunction) =>
+        authenticate(req, next),
+);
 
 // Assign the appropriate routers
 const marketRouting = new MarketRouting();
@@ -134,6 +153,7 @@ app.use("/market", marketRouting.toRouter());
 app.use("/datarow", datarowRouting.toRouter());
 app.use("/status", statusRouting.toRouter());
 app.use("/warning", warningRouting.toRouter());
+app.use("/command", new CommandRouting().toRouter());
 
 // Use websockets
 const WebSocket = require("ws");
@@ -165,14 +185,23 @@ channelHandlers.set("/warning", (ws: WebSocket) => {
 });
 
 server.on("upgrade", (req: express.Request, socket: any, head: any) => {
-    const channelHandler = channelHandlers.get(req.url);
-    if (channelHandler) {
-        wss.handleUpgrade(req, socket, head, (ws: any) => {
-            channelHandler(ws);
-        });
-    } else {
-        socket.destroy();
-    }
+    authenticate(req, (fun) => {
+        if (fun instanceof APIError) {
+            wss.handleUpgrade(req, socket, head, (ws: any) => {
+                ws.send("Error 401: Unauthorized");
+                ws.close();
+            });
+        } else {
+            const channelHandler = channelHandlers.get(req.url);
+            if (channelHandler) {
+                wss.handleUpgrade(req, socket, head, (ws: any) => {
+                    channelHandler(ws);
+                });
+            } else {
+                socket.destroy();
+            }
+        }
+    });
 });
 
 // Use a custom made error handler
