@@ -52,7 +52,7 @@ export class WarningRouting extends Routing {
             warningWs.sendData(result);
         }
 
-        return res.status(201).json(result);
+        return res.status(201).json({});
     };
 
     createWarning = async (warning: StateView) => {

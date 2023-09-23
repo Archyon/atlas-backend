@@ -1,6 +1,8 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { CustomRequest, Routing } from "./routing";
+import { APIError } from "../errors/api_error";
+import { APIErrorCode } from "../errors/api_error_codes";
 
 const prisma = new PrismaClient();
 
@@ -42,9 +44,10 @@ export class DataRowRouting extends Routing {
 
         for (let datarow of req.body) {
             // convert UNIX timestamp to Date
-            let time = new Date();
-            const unixtime = time.valueOf();
-            time = new Date(unixtime);
+            if (typeof datarow.time !== "number") {
+                throw new APIError(APIErrorCode.BAD_REQUEST);
+            }
+            const time = new Date(datarow.time);
 
             const data = {
                 time: time,

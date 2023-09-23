@@ -1,3 +1,6 @@
+import { APIError } from "./errors/api_error";
+import { APIErrorCode } from "./errors/api_error_codes";
+
 export type StateView = { [key: string]: any };
 
 /**
@@ -9,11 +12,15 @@ export type StateView = { [key: string]: any };
  *              "key3": "value
  *          }
  *      }
- * @param data  => a JSON of the form {[key: string]: any}
+ * @param data  => a JSON of the form {[key: string]: any} that is not allowed to be empty
  * @param container => a string that will become the most outer key of the new JSON
  */
 export function parse(data: StateView, container: string) {
     let states: StateView = {};
+
+    if (Object.entries(data).length === 0) {
+        throw new APIError(APIErrorCode.BAD_REQUEST);
+    }
 
     Object.entries(data).forEach(([key, value]) => {
         const keys = key.split("/");
