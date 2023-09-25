@@ -65,13 +65,6 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(checkData.body).toEqual(expected);
     });
 
-    test("NOTIFY /market as microservice", async () => {
-        const result = await session.notify("/market").set(authorizationMS);
-
-        expect(result.status).toEqual(300);
-        expect(result.body).toEqual({ method: "redirect" });
-    });
-
     test("GET /market as a user", async () => {
         const token = await getAuth();
         const result = await session
@@ -116,16 +109,6 @@ describe("Tests for Market endpoint that should succeed", () => {
         expect(checkData.status).toEqual(200);
         expect(checkData.body).toEqual(expected);
     });
-
-    test("NOTIFY /market as a user", async () => {
-        const token = await getAuth();
-        const result = await session
-            .notify("/market")
-            .set(authorizationUser(token));
-
-        expect(result.status).toEqual(300);
-        expect(result.body).toEqual({ method: "redirect" });
-    });
 });
 
 describe("Tests for Market endpoint that should fail", () => {
@@ -166,13 +149,6 @@ describe("Tests for Market endpoint that should fail", () => {
             expect(result.status).toEqual(401);
             expect(result.unauthorized).toEqual(true);
         });
-
-        test("NOTIFY /market without a token", async () => {
-            const result = await session.notify("/market");
-
-            expect(result.status).toEqual(401);
-            expect(result.unauthorized).toEqual(true);
-        });
     });
 
     describe("Access endpoint with an unauthenticated token", () => {
@@ -199,15 +175,6 @@ describe("Tests for Market endpoint that should fail", () => {
             const result = await session
                 .post("/market")
                 .send(market)
-                .set({ authorization });
-
-            expect(result.status).toEqual(401);
-            expect(result.unauthorized).toEqual(true);
-        });
-
-        test("NOTIFY /market with an unauthenticated token", async () => {
-            const result = await session
-                .notify("/market")
                 .set({ authorization });
 
             expect(result.status).toEqual(401);

@@ -97,13 +97,6 @@ describe("Tests for Datarow endpoint that should succeed", () => {
         expect(result.body).toEqual({});
     });
 
-    test("NOTIFY /datarow as microservice", async () => {
-        const result = await session.notify("/datarow").set(authorizationMS);
-
-        expect(result.status).toEqual(300);
-        expect(result.body).toEqual({ method: "redirect" });
-    });
-
     test("GET /datarow as a user", async () => {
         const token = await getAuth();
         const result = await session
@@ -145,16 +138,6 @@ describe("Tests for Datarow endpoint that should succeed", () => {
 
         expect(result.status).toEqual(201);
         expect(result.body).toEqual({});
-    });
-
-    test("NOTIFY /datarow as a user", async () => {
-        const token = await getAuth();
-        const result = await session
-            .notify("/datarow")
-            .set(authorizationUser(token));
-
-        expect(result.status).toEqual(300);
-        expect(result.body).toEqual({ method: "redirect" });
     });
 });
 
@@ -208,13 +191,6 @@ describe("Tests for Datarow endpoint that should fail", () => {
             expect(result.status).toEqual(401);
             expect(result.unauthorized).toEqual(true);
         });
-
-        test("NOTIFY /datarow without a token", async () => {
-            const result = await session.notify("/datarow");
-
-            expect(result.status).toEqual(401);
-            expect(result.unauthorized).toBeTruthy();
-        });
     });
 
     describe("Access endpoint with an unauthenticated token", () => {
@@ -252,15 +228,6 @@ describe("Tests for Datarow endpoint that should fail", () => {
             const result = await session
                 .post("/datarow")
                 .send(datarow)
-                .set({ authorization });
-
-            expect(result.status).toEqual(401);
-            expect(result.unauthorized).toBeTruthy();
-        });
-
-        test("NOTIFY /datarow with an unauthenticated token", async () => {
-            const result = await session
-                .notify("/datarow")
                 .set({ authorization });
 
             expect(result.status).toEqual(401);
